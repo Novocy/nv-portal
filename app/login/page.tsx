@@ -18,6 +18,10 @@ export default function LoginPage() {
     const cleanEmail = email.trim();
     if (!cleanEmail) return;
 
+    const cleanPassword = password.trim();
+    if (!cleanPassword) return;
+    if (cleanPassword) console.log(cleanPassword)
+
     // Fake "auth" for now
     localStorage.setItem("demo_user", cleanEmail);
 

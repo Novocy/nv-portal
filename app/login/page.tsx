@@ -29,6 +29,8 @@ export default function LoginPage() {
 
     if (error) {
       console.log(error.message);
+      // clear boxes
+      // prompt incorrect email or password
       return;
     }
 

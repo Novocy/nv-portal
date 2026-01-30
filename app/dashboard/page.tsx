@@ -6,8 +6,19 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
+type ServiceUpdate = {
+  id: string;
+  client_id: string | null;
+  created_at: string;
+  title: string | null;
+  body: string | null;
+};
+
+
 export default function DashboardPage() {
   const [user, setUser] = useState<string | null>(null);
+  const [updates, setUpdates] = useState<ServiceUpdate[]>([])
+  const [loadingUpdates, setLoadingUpdates] = useState(true)
   const router = useRouter();
 
   useEffect(() => {
@@ -26,7 +37,22 @@ export default function DashboardPage() {
       }
 
       setUser(data.session.user.email ?? null);
-    };
+
+
+
+      const { data: updatesData, error: updatesError } = await supabase
+        .from('service_updates')
+        .select()
+
+      if (updatesError) {
+        setLoadingUpdates(false)
+        console.log(updatesError.message);
+        return;
+      } 
+
+      setUpdates(updatesData ?? []);
+      setLoadingUpdates(false);
+      };
 
     checkSession();
   }, [router]);
@@ -52,6 +78,18 @@ export default function DashboardPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm">Signed in as: {user}</p>
+          {loadingUpdates && (
+            <p>Loading updates...</p>
+          )}
+          {!loadingUpdates && updates.length === 0 && (
+            <p>No updates yet.</p>
+          )}
+          {!loadingUpdates && updates.map(update => (
+            <div key={update.id} className="text-sm border-b pb-2">
+              <div className="font-medium">{update.title ?? "Untitled"}</div>
+              <div className="opacity-80">{update.body ?? ""}</div>
+            </div>
+          ))}
           <Button onClick={logout} variant="outline" className="w-full">
             Log out
           </Button>

@@ -23,7 +23,7 @@ export default function LoginPage() {
     if (cleanPassword) console.log(cleanPassword)
 
     // Fake "auth" for now
-    localStorage.setItem("demo_user", cleanEmail);
+    // localStorage.setItem("demo_user", cleanEmail);
 
     router.push("/dashboard");
   }

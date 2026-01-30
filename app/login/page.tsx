@@ -28,7 +28,7 @@ export default function LoginPage() {
     });
 
     if (error) {
-      console.error(error.message);
+      console.log(error.message);
       return;
     }
 

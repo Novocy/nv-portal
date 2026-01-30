@@ -1,6 +1,6 @@
 "use client";
 
-import { supabase } from "@/lib/supabaseClient"
+import { supabase } from "@/lib/supabaseClient";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -12,35 +12,37 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const checkSession = async () => {
-      const { data, error } = await supabase.auth.getSession()
+      const { data, error } = await supabase.auth.getSession();
+
+      if (error) {
+        console.error(error.message);
+        router.push("/login");
+        return;
+      }
 
       if (!data.session) {
-      router.push("/login");
-      return;
-    }
-    
-    // Save logged user's email so we can display
-      setUser(data.session.user.email ?? null)
+        router.push("/login");
+        return;
+      }
+
+      setUser(data.session.user.email ?? null);
     };
 
     checkSession();
   }, [router]);
 
   if (!user) {
-  return (
-    <main className="min-h-screen flex items-center justify-center p-6">
-      <p className="text-sm opacity-70">Checking session...</p>
-    </main>
-  );
-}
-
+    return (
+      <main className="min-h-screen flex items-center justify-center p-6">
+        <p className="text-sm opacity-70">Checking session...</p>
+      </main>
+    );
+  }
 
   async function logout() {
     await supabase.auth.signOut();
     router.push("/login");
   }
-
-  if (!user) return null;
 
   return (
     <main className="min-h-screen flex items-center justify-center p-6">

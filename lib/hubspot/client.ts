@@ -199,6 +199,39 @@ export class HubSpotClient {
   delete<T = unknown>(endpoint: string, opts?: RequestOptions) {
     return this.request<T>("DELETE", endpoint, opts);
   }
+
+  async getServiceRecords() {
+  return this.get("/crm/v3/objects/0-162", {
+    query: { limit: 50 },
+  });
+}
+
+// Get a single Company by ID
+async getCompanyById(id: string) {
+  return this.get(`/crm/v3/objects/companies/${id}`);
+}
+
+// Create a note and attach it to a Service record
+async createNoteOnService(serviceId: string, noteBody: string) {
+  return this.post("/crm/v3/objects/notes", {
+    json: {
+      properties: {
+        hs_note_body: noteBody,
+      },
+      associations: [
+        {
+          to: { id: serviceId },
+          types: [
+            {
+              associationCategory: "HUBSPOT_DEFINED",
+              associationTypeId: 190, // ⚠️ This may differ for your custom object
+            },
+          ],
+        },
+      ],
+    },
+  });
+}
 }
 
 /*

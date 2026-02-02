@@ -97,16 +97,16 @@ export default function DashboardPage() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center p-6">
-      <Card className="w-full max-w-md">
+    <main className="min-h-screen flex items-start justify-center p-8">
+      <Card className="w-full max-w-5xl min-h-[70vh]">
         <CardHeader>
           <CardTitle>Dashboard</CardTitle>
         </CardHeader>
 
-        <CardContent className="space-y-6">
+        <CardContent className="grid gap-6 md:grid-cols-2">
           <p className="text-sm">Signed in as: {user}</p>
 
-          <section className="space-y-3">
+          <section className="space-y-4 md:col-span-2">
             <div className="text-sm font-medium">Projects</div>
 
             {loadingProjects && (

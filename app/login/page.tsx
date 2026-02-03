@@ -38,6 +38,15 @@ export default function LoginPage() {
     router.push("/dashboard");
   }
 
+  async function handleGoogleLogIn () {
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`
+      },
+    });
+  }
+
   return (
     <main className="min-h-screen flex items-center justify-center p-6">
       <Card className="w-full max-w-md">
@@ -73,6 +82,14 @@ export default function LoginPage() {
             <Button type="submit" className="w-full">
               Continue
             </Button>
+            <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            onClick={handleGoogleLogIn}
+          >
+            Continue with Google
+          </Button>
           </form>
         </CardContent>
       </Card>

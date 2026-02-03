@@ -10,11 +10,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 type ServiceUpdate = {
   id: string;
-  project_id: string; // NOT NULL
-  occurred_at: string; // NOT NULL (matches your intent; if your DB allows null, change to string | null)
+  created_at: string;
   title: string | null;
   body: string | null;
+  project_id: string; // NOT NULL
   hubspot_note_id: string; // NOT NULL
+  occurred_at: string; // NOT NULL (matches your intent; if your DB allows null, change to string | null)
 };
 
 type Project = {
@@ -39,6 +40,8 @@ export default function ProjectDetailPage() {
 
   useEffect(() => {
     const run = async () => {
+      console.log(process.env.NEXT_PUBLIC_SUPABASE_URL);
+
       if (!projectId) return;
 
       const { data: sessionData, error: sessionError } =
@@ -62,9 +65,9 @@ export default function ProjectDetailPage() {
           .single(),
         supabase
           .from("service_updates")
-          .select("id, project_id, occurred_at, title, body, hubspot_note_id")
+          .select("id, project_id, created_at, occurred_at, title, body, hubspot_note_id")
           .eq("project_id", projectId)
-          .order("occurred_at", { ascending: false }),
+          .order("occurred_at", { ascending: false })
       ]);
 
       if (projectRes.error) {

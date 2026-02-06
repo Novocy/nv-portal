@@ -15,6 +15,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 function isValidEmail(value: string) {
   // pragmatic email validation: good UX without being overly strict
@@ -229,6 +230,20 @@ export default function LoginPage() {
               )}
             />
           </div>
+          <ThemeToggle
+            className='
+    fixed
+    bottom-4
+    right-4
+    z-50
+    rounded-full
+    shadow-sm
+    backdrop-blur
+    bg-background/80
+    dark:border-white/5
+    border-black/5
+  '
+          />
 
           <div className='group relative w-full max-w-lg'>
             {/* Logo */}

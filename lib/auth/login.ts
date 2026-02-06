@@ -17,6 +17,22 @@ export async function signInWithEmailPassword(email: string, password: string) {
     throw error;
   }
 
+  // Fire-and-forget login event
+  const user = data?.user;
+  if (user?.email && user?.id) {
+    fetch('/api/events/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: user.email,
+        userUuid: user.id,
+        loginTimestamp: new Date().toISOString(),
+      }),
+    }).catch(() => {
+      // intentionally ignored
+    });
+  }
+
   return data;
 }
 

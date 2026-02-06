@@ -162,7 +162,7 @@ export default function LoginPage() {
   }
 
   return (
-    <main className='min-h-screen grid grid-cols-1 lg:grid-cols-3'>
+    <main className='min-h-screen grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3'>
       {/* Brand / Marketing panel */}
       <section className='hidden lg:flex flex-col justify-between px-16 py-14 bg-gradient-to-br from-[#998061] via-[#c7b89a] to-[#ded4bd] text-white'>
         {/* Top */}
@@ -214,7 +214,7 @@ export default function LoginPage() {
       </section>
 
       {/* Auth panel */}
-      <section className='relative flex items-center justify-center p-6 bg-background overflow-hidden col-span-2'>
+      <section className='relative flex items-center justify-center p-6 bg-background overflow-hidden md:col-span-2'>
         {/* Background glow (disciplined, focus-aware, reduced motion safe) */}
         <div>
           <div className='absolute inset-0 flex items-center justify-center pointer-events-none'>

@@ -1,14 +1,14 @@
-import type { NextConfig } from 'next';
+import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: '/:path*',
+        source: "/:path*",
         headers: [
           {
-            key: 'X-Robots-Tag',
-            value: 'noindex, nofollow',
+            key: "X-Robots-Tag",
+            value: "noindex, nofollow",
           },
         ],
       },

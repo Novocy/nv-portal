@@ -1,11 +1,11 @@
-import { supabase } from '@/lib/supabase/supabaseClient';
+import { supabase } from "@/lib/supabase/supabaseClient";
 
 export async function signInWithEmailPassword(email: string, password: string) {
   const cleanEmail = email.trim();
   const cleanPassword = password.trim();
 
   if (!cleanEmail || !cleanPassword) {
-    throw new Error('Email and password are required');
+    throw new Error("Email and password are required");
   }
 
   const { data, error } = await supabase.auth.signInWithPassword({
@@ -22,7 +22,7 @@ export async function signInWithEmailPassword(email: string, password: string) {
 
 export async function signInWithGoogle(redirectTo?: string) {
   const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: 'google',
+    provider: "google",
     options: {
       redirectTo: redirectTo ?? `${window.location.origin}/auth/callback`,
     },

@@ -7,6 +7,7 @@ Users can log in with Supabase Auth and can view service updates that belong to 
 ---
 
 What this portal does (currently):
+
 1. User signs in with email + password (Supabase Auth)
 2. Dashboard checks the current session
 3. Dashboard fetches `service_updates`
@@ -15,6 +16,7 @@ What this portal does (currently):
 ---
 
 Tech stack:
+
 - Next.js (App Router, Client Components)
 - Supabase (Auth + Postgres + RLS)
 - TypeScript
@@ -30,8 +32,9 @@ Tables:
 Supabase stores login accounts here
 
 Key column:
+
 - `id` (uuid) - unique user ID
-You cannot read passwords from here. Supabase handles passwords securely.
+  You cannot read passwords from here. Supabase handles passwords securely.
 
 ---
 

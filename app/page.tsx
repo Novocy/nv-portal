@@ -1,20 +1,20 @@
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { ThemeToggle } from '@/components/theme-toggle';
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function Page() {
   return (
-    <main className='min-h-screen flex items-center justify-center gap-3'>
+    <main className="min-h-screen flex items-center justify-center gap-3">
       {/* Link is Next's client-side navigation */}
-      <Link href='/login'>
-        <Button className=''>Login</Button>
+      <Link href="/login">
+        <Button className="">Login</Button>
       </Link>
 
-      <Link href='/dashboard'>
-        <Button variant='outline'>Dashboard</Button>
+      <Link href="/dashboard">
+        <Button variant="outline">Dashboard</Button>
       </Link>
       <ThemeToggle
-        className='
+        className="
           fixed
           bottom-4
           right-4
@@ -25,7 +25,7 @@ export default function Page() {
           bg-background/80
           dark:border-white/5
           border-black/5
-        '
+        "
       />
     </main>
   );

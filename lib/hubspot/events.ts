@@ -23,12 +23,12 @@ export class HubSpotEventsClient {
 
     if (!token) {
       throw new Error(
-        'HubSpot access token is required. Set HUBSPOT_PRIVATE_APP_TOKEN or pass accessToken.',
+        "HubSpot access token is required. Set HUBSPOT_PRIVATE_APP_TOKEN or pass accessToken.",
       );
     }
 
     this.token = token;
-    this.baseUrl = options.baseUrl ?? 'https://api.hubapi.com';
+    this.baseUrl = options.baseUrl ?? "https://api.hubapi.com";
     this.fetchFn = options.fetchFn ?? fetch;
   }
 
@@ -37,7 +37,7 @@ export class HubSpotEventsClient {
     const timestamp = this.normalizeTimestamp(params.loginTimestamp);
 
     return this.sendCustomEvent(
-      'pe26109463_client_portal_login',
+      "pe26109463_client_portal_login",
       params.email,
       { login_timestamp: timestamp },
     );
@@ -47,7 +47,7 @@ export class HubSpotEventsClient {
   async sendFirstLoginEvent(params: SendLoginEventParams) {
     const timestamp = this.normalizeTimestamp(params.loginTimestamp);
 
-    return this.sendCustomEvent('pe26109463_firstportallogin', params.email, {
+    return this.sendCustomEvent("pe26109463_firstportallogin", params.email, {
       first_login_timestamp: timestamp,
     });
   }
@@ -58,8 +58,8 @@ export class HubSpotEventsClient {
     email: string,
     properties?: Record<string, Primitive>,
   ) {
-    console.log('Event Logged:', eventName);
-    return this.post('/events/v3/send', {
+    console.log("Event Logged:", eventName);
+    return this.post("/events/v3/send", {
       eventName,
       email,
       properties,
@@ -73,16 +73,16 @@ export class HubSpotEventsClient {
 
   private async post<T extends object>(path: string, body: T): Promise<void> {
     const res = await this.fetchFn(`${this.baseUrl}${path}`, {
-      method: 'POST',
+      method: "POST",
       headers: {
         Authorization: `Bearer ${this.token}`,
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(body),
     });
 
     if (!res.ok) {
-      const text = await res.text().catch(() => '');
+      const text = await res.text().catch(() => "");
       throw new Error(
         `HubSpot API error (${res.status}): ${text || res.statusText}`,
       );

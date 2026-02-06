@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { supabase } from './supabaseClient';
+import { supabase } from "./supabaseClient";
 
 let initialized = false;
 
@@ -9,7 +9,7 @@ export function initAuthAnalyticsListener() {
   initialized = true;
 
   supabase.auth.onAuthStateChange((event, session) => {
-    if (event !== 'SIGNED_IN' || !session?.user) return;
+    if (event !== "SIGNED_IN" || !session?.user) return;
 
     const user = session.user;
 
@@ -26,12 +26,12 @@ export function initAuthAnalyticsListener() {
       (lastSignInAt === null || Math.abs(createdAt - lastSignInAt) < 1000);
 
     const endpoint = isFirstLogin
-      ? '/api/events/firstlogin'
-      : '/api/events/login';
-    console.log(endpoint, 'logged');
+      ? "/api/events/firstlogin"
+      : "/api/events/login";
+    console.log(endpoint, "logged");
     fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         email: user.email,
         userUuid: user.id,

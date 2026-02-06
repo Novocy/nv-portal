@@ -10,4 +10,4 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 // Creates a supabase client using project details
 // App will use this object to log users in and query data.
 // Export makes this variable available to other files
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);

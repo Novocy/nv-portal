@@ -27,11 +27,10 @@ async function fetchOwnerById(id: string): Promise<any> {
   const hubspot = new HubSpotClient(accessToken);
   const response = await hubspot.getOwnerById(id);
 
-  if (response.status === "error") throw new Error(response.reason)
+  if (response.status === "error") throw new Error(response.reason);
 
-    return response.data;
+  return response.data;
 }
-
 
 export async function GET() {
   try {
@@ -46,12 +45,9 @@ export async function GET() {
       const ownerId = service.properties?.hubspot_owner_id;
       const owner = await fetchOwnerById(ownerId);
 
-
       if (companies.length === 1) {
         const companyId = companies[0].id;
         const company = await fetchCompanyRecordById(companyId);
-
-
 
         validServices.push({
           id: service.id,
@@ -64,7 +60,7 @@ export async function GET() {
           owner_last_name: owner.lastName,
           owner_email: owner.email,
           client_id: companyId,
-          company_name: company?.properties?.name, 
+          company_name: company?.properties?.name,
         });
       } else {
         invalidServices.push({
@@ -83,7 +79,7 @@ export async function GET() {
   } catch (err) {
     return NextResponse.json(
       { success: false, error: String(err) },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

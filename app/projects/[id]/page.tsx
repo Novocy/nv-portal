@@ -1,182 +1,194 @@
-// app/projects/[id]/page.tsx
-"use client";
+'use client';
 
-import { supabase } from "@/lib/supabase/supabaseClient";
-import { useEffect, useState } from "react";
-import { useRouter, useParams } from "next/navigation";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ThemeToggle } from "@/components/theme-toggle";
-type ServiceUpdate = {
+import { useEffect, useState } from 'react';
+import { useRouter, useParams } from 'next/navigation';
+import Link from 'next/link';
+import { supabase } from '@/lib/supabase/supabaseClient';
+
+import { DashboardShell } from '@/components/dashboard/dashboard-shell';
+import { ProjectHeader } from '@/components/projects/project-header';
+import { ServiceUpdatesTimeline } from '@/components/projects/service-updates-timeline';
+import { TrustFooter } from '@/components/projects/trust-footer';
+import { TopBar } from '@/components/dashboard/top-bar';
+
+export type Project = {
   id: string;
+  name: string | null;
+  status: 'Open' | 'Closed' | null;
+  stage: string;
   created_at: string;
-  title: string | null;
-  body: string | null;
-  project_id: string; // NOT NULL
-  hubspot_note_id: string; // NOT NULL
-  occurred_at: string; // NOT NULL (matches your intent; if your DB allows null, change to string | null)
+  target_end_date?: string | null;
+  owner_first_name?: string | null;
+  owner_last_name?: string | null;
+  owner_email?: string | null;
 };
 
-type Project = {
+type ServiceUpdate = {
   id: string;
-  created_at: string;
-  client_id: string; // NOT NULL
-  name: string | null;
-  status: string | null;
-  hubspot_service_id: string; // NOT NULL
+  title: string | null;
+  body: string | null;
+  occurred_at: string;
+  type: 'update' | 'message' | 'action' | 'milestone';
 };
 
 export default function ProjectDetailPage() {
   const router = useRouter();
-  const params = useParams<{ id: string }>();
-  const projectId = params?.id;
+  const { id: projectId } = useParams<{ id: string }>();
 
-  const [user, setUser] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
   const [project, setProject] = useState<Project | null>(null);
   const [updates, setUpdates] = useState<ServiceUpdate[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const [email, setEmail] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [fullName, setFullName] = useState<string | null>(null);
 
   useEffect(() => {
-    const run = async () => {
-      console.log(process.env.NEXT_PUBLIC_SUPABASE_URL);
+    if (!projectId) return;
 
-      if (!projectId) return;
+    async function run() {
+      const { data, error: sessionError } = await supabase.auth.getSession();
 
-      const { data: sessionData, error: sessionError } =
-        await supabase.auth.getSession();
+      const session = data.session;
 
-      if (sessionError || !sessionData.session) {
-        router.push("/login");
+      if (sessionError || !session) {
+        router.push('/login');
         return;
       }
 
-      setUser(sessionData.session.user.email ?? null);
+      const user = session.user;
+
+      setEmail(user.email ?? null);
+      setAvatarUrl(user.user_metadata?.avatar_url ?? user.user_metadata?.picture ?? null);
+      setFullName(user.user_metadata?.full_name ?? user.user_metadata?.name ?? null);
 
       setLoading(true);
-      setErrorMsg(null);
+      setError(null);
 
       const [projectRes, updatesRes] = await Promise.all([
         supabase
-          .from("projects")
-          .select("id, created_at, client_id, name, status, hubspot_service_id")
-          .eq("id", projectId)
-          .single(),
-        supabase
-          .from("service_updates")
+          .from('projects')
           .select(
-            "id, project_id, created_at, occurred_at, title, body, hubspot_note_id",
+            'id, name, status, stage, created_at, owner_first_name, owner_last_name, owner_email, target_end_date',
           )
-          .eq("project_id", projectId)
-          .order("occurred_at", { ascending: false }),
+          .eq('id', projectId)
+          .single(),
+
+        supabase
+          .from('service_updates')
+          .select('id, title, body, occurred_at, type')
+          .eq('project_id', projectId)
+          .order('occurred_at', { ascending: false }),
       ]);
 
       if (projectRes.error) {
-        setErrorMsg(projectRes.error.message);
+        setError(projectRes.error.message);
         setProject(null);
       } else {
         setProject(projectRes.data as Project);
       }
 
-      if (updatesRes.error) {
-        setErrorMsg((prev) => prev ?? updatesRes.error.message);
-        setUpdates([]);
-      } else {
-        setUpdates((updatesRes.data ?? []) as ServiceUpdate[]);
-      }
-
+      setUpdates((updatesRes.data ?? []) as ServiceUpdate[]);
       setLoading(false);
-    };
+    }
 
     run();
   }, [projectId, router]);
 
-  if (!user) {
+  /* ---------- Guard ---------- */
+  if (!email) {
     return (
-      <main className="min-h-screen flex items-center justify-center p-6">
-        <p className="text-sm opacity-70">Checking session...</p>
-      </main>
+      <DashboardShell>
+        <p className="text-sm text-muted-foreground">Checking session…</p>
+      </DashboardShell>
     );
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center p-6">
-      <ThemeToggle
-        className="
-          fixed
-          bottom-4
-          right-4
-          z-50
-          rounded-full
-          shadow-sm
-          backdrop-blur
-          bg-background/80
-          dark:border-white/5
-          border-black/5
-        "
+    <DashboardShell>
+      {/* Top chrome */}
+      <TopBar
+        email={email}
+        avatarUrl={avatarUrl}
+        fullName={fullName}
+        onLogout={async () => {
+          await supabase.auth.signOut();
+          router.push('/login');
+        }}
       />
-      <Card className="w-full max-w-3xl">
-        <CardHeader className="space-y-2">
-          <div className="flex items-center justify-between gap-3">
-            <CardTitle>Project</CardTitle>
-            <Link href="/dashboard" className="text-sm underline opacity-80">
-              Back
-            </Link>
-          </div>
-          <p className="text-xs opacity-70">Signed in as: {user}</p>
-        </CardHeader>
 
-        <CardContent className="space-y-4">
-          {loading && <p className="text-sm opacity-70">Loading...</p>}
+      {/* Page content */}
+      <div className="mx-auto w-full max-w-5xl space-y-8">
+        {/* Breadcrumb */}
+        <nav
+          aria-label="Breadcrumb"
+          className="flex items-center gap-2 text-sm text-muted-foreground"
+        >
+          <Link href="/dashboard" className="hover:text-foreground underline underline-offset-4">
+            Dashboard
+          </Link>
 
-          {!loading && errorMsg && (
-            <div className="text-sm border rounded p-3">
-              <div className="font-medium">Couldn’t load project</div>
-              <div className="opacity-80">{errorMsg}</div>
-            </div>
-          )}
+          <span aria-hidden className="opacity-60">
+            /
+          </span>
 
-          {!loading && !errorMsg && project && (
-            <>
-              <div className="border rounded p-3 space-y-1">
-                <div className="text-sm font-medium">
-                  {project.name ?? "Untitled project"}
-                </div>
-                <div className="text-xs opacity-70">
-                  Status: {project.status ?? "unknown"}
-                </div>
-              </div>
+          <span className="truncate max-w-[40ch] text-foreground">
+            {project?.name ?? 'Project'}
+          </span>
+        </nav>
 
-              <div className="space-y-2">
-                <div className="text-sm font-medium">Service updates</div>
-
-                {updates.length === 0 && (
-                  <p className="text-sm opacity-70">No updates yet.</p>
-                )}
-
-                {updates.map((u) => (
-                  <div key={u.id} className="text-sm border-b pb-2">
-                    <div className="font-medium">{u.title ?? "Untitled"}</div>
-                    <div className="opacity-80">{u.body ?? ""}</div>
-                    <div className="text-xs opacity-60 mt-1">
-                      {new Date(u.occurred_at).toLocaleString()}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
-
-          <Button
-            onClick={() => router.push("/dashboard")}
-            variant="outline"
-            className="w-full"
+        {/* Loading */}
+        {loading && (
+          <div
+            className="
+              rounded-lg border
+              border-border/60 dark:border-white/10
+              bg-background/70 dark:bg-background/40
+              backdrop-blur
+              p-6
+            "
           >
-            Back to dashboard
-          </Button>
-        </CardContent>
-      </Card>
-    </main>
+            <p className="text-sm text-muted-foreground">Loading project…</p>
+          </div>
+        )}
+
+        {/* Error */}
+        {!loading && error && (
+          <div
+            className="
+              rounded-lg border
+              border-border/60 dark:border-white/10
+              bg-background/70 dark:bg-background/40
+              backdrop-blur
+              p-6
+            "
+          >
+            <p className="text-sm font-medium">Couldn’t load project</p>
+            <p className="mt-1 text-sm text-muted-foreground">{error}</p>
+          </div>
+        )}
+
+        {/* Content */}
+        {!loading && project && (
+          <div className="space-y-14">
+            <ProjectHeader project={project} />
+
+            <div
+              className="
+                rounded-xl
+                bg-background/70 dark:bg-background/40
+                backdrop-blur
+                border-border/60 dark:border-white/10
+              "
+            >
+              <ServiceUpdatesTimeline updates={updates} />
+            </div>
+
+            <TrustFooter stage={project.stage} status={project.status} />
+          </div>
+        )}
+      </div>
+    </DashboardShell>
   );
 }

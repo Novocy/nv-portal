@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { Moon, Sun } from "lucide-react";
-import { useTheme } from "next-themes";
+import * as React from 'react';
+import { Moon, Sun } from 'lucide-react';
+import { useTheme } from 'next-themes';
 
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 type ThemeToggleProps = {
   className?: string;
@@ -21,7 +21,7 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
 
   if (!mounted) return null;
 
-  const isDark = resolvedTheme === "dark";
+  const isDark = resolvedTheme === 'dark';
 
   return (
     <Button
@@ -29,23 +29,23 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
       variant="ghost"
       size="icon"
       aria-label="Toggle theme"
-      onClick={() => setTheme(isDark ? "light" : "dark")}
+      onClick={() => setTheme(isDark ? 'light' : 'dark')}
       className={cn(
-        "relative h-9 w-9 rounded-md",
-        "hover:bg-muted focus-visible:ring-1 focus-visible:ring-ring",
+        'relative h-9 w-9 rounded-md',
+        'hover:bg-muted focus-visible:ring-1 focus-visible:ring-ring',
         className,
       )}
     >
       <Sun
         className={cn(
-          "absolute h-4 w-4 transition-all",
-          isDark ? "scale-0 rotate-90" : "scale-100 rotate-0",
+          'absolute h-4 w-4 transition-all',
+          isDark ? 'scale-0 rotate-90' : 'scale-100 rotate-0',
         )}
       />
       <Moon
         className={cn(
-          "absolute h-4 w-4 transition-all",
-          isDark ? "scale-100 rotate-0" : "scale-0 rotate-90",
+          'absolute h-4 w-4 transition-all',
+          isDark ? 'scale-100 rotate-0' : 'scale-0 rotate-90',
         )}
       />
     </Button>

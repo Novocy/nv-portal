@@ -1,5 +1,5 @@
 // Import the function used to connect to supabase
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from '@supabase/supabase-js';
 
 // NEXT_PUBLIC_ means it's allowed to be used in the browser
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;

@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
-import { HubSpotClient } from "@/lib/hubspot/client";
+import { NextResponse } from 'next/server';
+import { HubSpotClient } from '@/lib/hubspot/client';
 
 const accessToken = process.env.HUBSPOT_PRIVATE_APP_TOKEN;
 
@@ -9,7 +9,7 @@ async function fetchServiceRecords(): Promise<HubSpotListResponse<any>> {
   const hubspot = new HubSpotClient(accessToken);
   const res = await hubspot.getServiceRecords();
 
-  if (res.status === "error") throw new Error(res.reason);
+  if (res.status === 'error') throw new Error(res.reason);
 
   return res.data as HubSpotListResponse<any>;
 }
@@ -18,7 +18,7 @@ async function fetchCompanyRecordById(id: string): Promise<any> {
   const hubspot = new HubSpotClient(accessToken);
   const res = await hubspot.getCompanyById(id);
 
-  if (res.status === "error") throw new Error(res.reason);
+  if (res.status === 'error') throw new Error(res.reason);
 
   return res.data;
 }
@@ -27,7 +27,7 @@ async function fetchOwnerById(id: string): Promise<any> {
   const hubspot = new HubSpotClient(accessToken);
   const response = await hubspot.getOwnerById(id);
 
-  if (response.status === "error") throw new Error(response.reason);
+  if (response.status === 'error') throw new Error(response.reason);
 
   return response.data;
 }
@@ -77,9 +77,6 @@ export async function GET() {
       warnings: invalidServices.length > 0 ? invalidServices : undefined,
     });
   } catch (err) {
-    return NextResponse.json(
-      { success: false, error: String(err) },
-      { status: 500 },
-    );
+    return NextResponse.json({ success: false, error: String(err) }, { status: 500 });
   }
 }

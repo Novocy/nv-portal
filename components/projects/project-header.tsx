@@ -5,6 +5,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Mail } from 'lucide-react';
 import { StageTimeline } from './stages';
+import type { StageKey } from './stages';
 
 type ProjectHeaderProps = {
   project: {
@@ -72,7 +73,10 @@ function formatDate(date?: string | null) {
 
 export function ProjectHeader({ project }: ProjectHeaderProps) {
   const stage = project.stage ?? 'Unknown';
-  const stageKeyMap: Record<string, StageKey> = {
+  const stageKeyMap: Record<
+    'Design' | 'Build' | 'UAT' | 'Training' | 'Warranty' | 'Completed' | 'Closed',
+    StageKey
+  > = {
     Design: 'design',
     Build: 'build',
     UAT: 'uat',

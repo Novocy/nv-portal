@@ -13,7 +13,9 @@ import { ProjectGrid } from '@/components/dashboard/project-grid';
 type Project = {
   id: string;
   name: string | null;
-  status: string | null;
+  status: 'Open' | 'Closed' | null;
+  stage: string;
+  created_at: string;
 };
 
 export default function DashboardPage() {
@@ -27,10 +29,10 @@ export default function DashboardPage() {
 
   useEffect(() => {
     async function run() {
-      const { data } = await supabase.auth.getSession();
+      const { data, error } = await supabase.auth.getSession();
       const user = data.session?.user;
 
-      if (!user) {
+      if (error || !user) {
         router.push('/login');
         return;
       }
@@ -39,12 +41,15 @@ export default function DashboardPage() {
       setAvatarUrl(user.user_metadata?.avatar_url ?? user.user_metadata?.picture ?? null);
       setFullName(user.user_metadata?.full_name ?? user.user_metadata?.name ?? null);
 
-      const { data: projects } = await supabase
+      const { data: projects, error: projectsError } = await supabase
         .from('projects')
-        .select('id, name, status, stage')
+        .select('id, name, status, stage, created_at')
         .order('created_at', { ascending: false });
 
-      setProjects(projects ?? []);
+      if (!projectsError) {
+        setProjects(projects ?? []);
+      }
+
       setLoading(false);
     }
 
@@ -52,7 +57,7 @@ export default function DashboardPage() {
   }, [router]);
 
   if (loading) {
-    return null; // or skeleton later
+    return null; // skeleton later
   }
 
   return (

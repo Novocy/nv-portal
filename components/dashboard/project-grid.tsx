@@ -3,23 +3,23 @@ import Link from 'next/link';
 import { ProjectCard } from './project-card';
 import { Button } from '@/components/ui/button';
 import { FolderOpenIcon } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
-export type Project = {
+/* ---------------- Types ---------------- */
+
+export type ProjectBase = {
   id: string;
   name: string | null;
   status: 'Open' | 'Closed' | null;
+};
+
+export type ProjectSummary = ProjectBase & {
   stage: string;
   created_at: string;
-  target_end_date?: string | null;
-  owner_first_name?: string | null;
-  owner_last_name?: string | null;
-  owner_email?: string | null;
 };
 
 type ProjectGridProps = {
-  projects: Project[];
-  loading?: boolean;
+  projects: ProjectSummary[];
+  loading: boolean;
 };
 
 /* ---------------- Skeleton ---------------- */
@@ -37,15 +37,17 @@ function ProjectSkeleton() {
 
 /* ---------------- Helpers ---------------- */
 
-function normaliseStatus(status: string | null) {
-  if (!status) return 'Other';
-  return status.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
+type GroupStatus = 'Open' | 'Closed' | 'Other';
+
+function normaliseStatus(status: ProjectBase['status']): GroupStatus {
+  if (status === 'Open' || status === 'Closed') return status;
+  return 'Other';
 }
 
 /**
  * Explicit ordering improves scanability and future UX
  */
-const STATUS_ORDER = ['Open', 'Closed', 'Other'];
+const STATUS_ORDER: GroupStatus[] = ['Open', 'Closed', 'Other'];
 
 /* ---------------- Component ---------------- */
 
@@ -81,7 +83,7 @@ export function ProjectGrid({ projects, loading }: ProjectGridProps) {
           </p>
 
           <Button asChild variant="outline" size="sm">
-            <Link href="mailto:samuel@novocy.com">Contact us</Link>
+            <a href="mailto:samuel@novocy.com">Contact us</a>
           </Button>
         </div>
       </div>
@@ -89,13 +91,16 @@ export function ProjectGrid({ projects, loading }: ProjectGridProps) {
   }
 
   /* ---------- Grouping ---------- */
-  const grouped = projects.reduce<Record<string, Project[]>>((acc, project) => {
-    const key = normaliseStatus(project.status);
-    acc[key] = acc[key] ? [...acc[key], project] : [project];
-    return acc;
-  }, {});
+  const grouped = projects.reduce<Record<GroupStatus, ProjectSummary[]>>(
+    (acc, project) => {
+      const key = normaliseStatus(project.status);
+      acc[key].push(project);
+      return acc;
+    },
+    { Open: [], Closed: [], Other: [] },
+  );
 
-  const orderedStatuses = STATUS_ORDER.filter((s) => grouped[s]?.length);
+  const orderedStatuses = STATUS_ORDER.filter((s) => grouped[s].length > 0);
 
   /* ---------- Render ---------- */
   return (

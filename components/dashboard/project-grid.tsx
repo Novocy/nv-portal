@@ -9,6 +9,7 @@ type Project = {
   id: string;
   name: string | null;
   status: string | null;
+  stage: string;
 };
 
 type ProjectGridProps = {
@@ -16,11 +17,11 @@ type ProjectGridProps = {
   loading?: boolean;
 };
 
+/* ---------------- Skeleton ---------------- */
+
 function ProjectSkeleton() {
   return (
-    <div
-      className={cn('h-[110px] rounded-lg border bg-background/60 backdrop-blur', 'animate-pulse')}
-    >
+    <div className="h-[110px] rounded-lg border bg-background/60 backdrop-blur animate-pulse">
       <div className="p-5 space-y-3">
         <div className="h-4 w-3/4 rounded bg-muted" />
         <div className="h-3 w-1/3 rounded bg-muted" />
@@ -29,12 +30,26 @@ function ProjectSkeleton() {
   );
 }
 
+/* ---------------- Helpers ---------------- */
+
+function normaliseStatus(status: string | null) {
+  if (!status) return 'Other';
+  return status.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
+}
+
+/**
+ * Explicit ordering improves scanability and future UX
+ */
+const STATUS_ORDER = ['Open', 'Closed', 'Other'];
+
+/* ---------------- Component ---------------- */
+
 export function ProjectGrid({ projects, loading }: ProjectGridProps) {
-  /* ---------- Loading state ---------- */
+  /* ---------- Loading ---------- */
   if (loading) {
     return (
-      <div className="space-y-4">
-        <p className="text-sm text-muted-foreground">Loading projects…</p>
+      <div className="space-y-6">
+        <div className="h-4 w-32 rounded bg-muted animate-pulse" />
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 3 }).map((_, i) => (
@@ -45,19 +60,13 @@ export function ProjectGrid({ projects, loading }: ProjectGridProps) {
     );
   }
 
-  /* ---------- Empty state ---------- */
+  /* ---------- Empty ---------- */
   if (projects.length === 0) {
     return (
-      <div
-        className={cn(
-          'flex flex-col items-center justify-center',
-          'rounded-lg border border-dashed',
-          'p-12 text-center',
-        )}
-      >
-        <FolderOpenIcon className="mb-4 h-8 w-8 text-muted-foreground" />
+      <div className="rounded-lg border border-dashed p-12 text-center">
+        <FolderOpenIcon className="mx-auto mb-4 h-8 w-8 text-muted-foreground" />
 
-        <div className="max-w-md space-y-4">
+        <div className="mx-auto max-w-md space-y-4">
           <h3 className="text-sm font-semibold tracking-tight">No projects found</h3>
 
           <p className="text-sm text-muted-foreground leading-relaxed">
@@ -66,29 +75,49 @@ export function ProjectGrid({ projects, loading }: ProjectGridProps) {
             we’ll be happy to help.
           </p>
 
-          <div className="pt-2">
-            <Button asChild variant="outline" size="sm">
-              <Link href="mailto:samuel@novocy.com">Contact us</Link>
-            </Button>
-          </div>
+          <Button asChild variant="outline" size="sm">
+            <Link href="mailto:samuel@novocy.com">Contact us</Link>
+          </Button>
         </div>
       </div>
     );
   }
 
-  /* ---------- Populated state ---------- */
-  return (
-    <div className="space-y-4">
-      {/* Summary row */}
-      <p className="text-sm text-muted-foreground">
-        {projects.length} Project{projects.length !== 1 ? 's' : ''}
-      </p>
+  /* ---------- Grouping ---------- */
+  const grouped = projects.reduce<Record<string, Project[]>>((acc, project) => {
+    const key = normaliseStatus(project.status);
+    acc[key] = acc[key] ? [...acc[key], project] : [project];
+    return acc;
+  }, {});
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {projects.map((p) => (
-          <ProjectCard key={p.id} id={p.id} name={p.name} status={p.status} />
-        ))}
+  const orderedStatuses = STATUS_ORDER.filter((s) => grouped[s]?.length);
+
+  /* ---------- Render ---------- */
+  return (
+    <div className="space-y-10">
+      {/* Summary */}
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-muted-foreground">
+          {projects.length} project{projects.length !== 1 ? 's' : ''}
+        </p>
       </div>
+
+      {orderedStatuses.map((status) => (
+        <section key={status} className="space-y-4">
+          {/* Section header */}
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-semibold tracking-tight">{status}</h3>
+            <span className="text-xs text-muted-foreground">{grouped[status].length}</span>
+          </div>
+
+          {/* Card grid */}
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {grouped[status].map((p) => (
+              <ProjectCard key={p.id} id={p.id} name={p.name} status={p.status} stage={p.stage} />
+            ))}
+          </div>
+        </section>
+      ))}
     </div>
   );
 }

@@ -34,7 +34,7 @@ export function TopBar({ email, avatarUrl, fullName, onLogout }: TopBarProps) {
   const initials = getInitials(email);
 
   return (
-    <div className="flex items-center justify-between border-b pb-6">
+    <div className="flex items-center sticky justify-between border-b pb-6">
       {/* Identity */}
       <div className="group relative flex items-center gap-3">
         {/* Avatar */}

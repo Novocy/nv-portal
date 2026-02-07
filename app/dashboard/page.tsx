@@ -41,7 +41,7 @@ export default function DashboardPage() {
 
       const { data: projects } = await supabase
         .from('projects')
-        .select('id, name, status')
+        .select('id, name, status, stage')
         .order('created_at', { ascending: false });
 
       setProjects(projects ?? []);
@@ -68,7 +68,6 @@ export default function DashboardPage() {
       />
 
       <DashboardHeader />
-
       <ProjectGrid projects={projects} loading={loading} />
     </DashboardShell>
   );

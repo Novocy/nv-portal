@@ -1,7 +1,13 @@
 import { NextResponse } from 'next/server';
 import { HubSpotClient } from '@/lib/hubspot/client';
+import { createClient } from '@supabase/supabase-js';
 
 const accessToken = process.env.HUBSPOT_PRIVATE_APP_TOKEN;
+
+const supabase = createClient(
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 type HubSpotListResponse<T> = { results: T[] };
 
@@ -59,7 +65,7 @@ export async function GET() {
           owner_first_name: owner.firstName,
           owner_last_name: owner.lastName,
           owner_email: owner.email,
-          client_id: companyId,
+          hubspot_company_id: companyId,
           company_name: company?.properties?.name,
         });
       } else {
@@ -69,6 +75,45 @@ export async function GET() {
         });
       }
     }
+
+    // Query clients where hubspot_company_id == service.hubspot_company_id
+    
+
+    for (const service of validServices) {
+
+      const { data: clientData, error: clientError } = await supabase
+      .from("clients")
+      .select("*")
+      .eq("hubspot_company_id", service.hubspot_company_id)
+      .single();
+
+      if (clientError) {
+        return NextResponse.json({
+          error: clientError.message
+        }, {
+          status: 400
+        })
+      }
+
+      const clientId = clientData.id;
+
+      const { data, error } = await supabase
+      .from("projects")
+      .insert({
+       hubspot_service_id: service.id,
+       name: service.name,
+       status: service.status,
+       start_date: service.start_date,
+       target_end_date: service.target_end_date,
+       hubspot_owner_id: service.owner,
+       owner_first_name: service.owner_first_name,
+       owner_last_name: service.owner_last_name,
+       owner_email: service.owner_email,
+       client_id: clientId
+
+    })
+    }
+    
 
     return NextResponse.json({
       success: true,

@@ -16,10 +16,10 @@ export async function POST(request: Request) {
     }
 
     // Parse JSON
-    const { title, body, projectId, occurred_at, type } = await request.json()
+    const { title, body, projectId: hubspot_service_id, occurred_at, type } = await request.json()
 
     // Basic Validation
-    if (!title || !body || !projectId || !occurred_at || !type) {
+    if (!title || !body || !hubspot_service_id || !occurred_at || !type) {
         return NextResponse.json({ error: "Missing required field" }, { status: 400});
     }
     if (title.length > 128) {
@@ -32,11 +32,17 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Invalid type. Must be one of: update, action, milestone, message." }, { status: 422 });
     }
 
+    const parsedDate = new Date(occurred_at);
+
+    if (isNaN(parsedDate.getTime())) {
+        return NextResponse.json({ error: "Invalid occurred_at date" }, { status: 400 })
+    }
+
     // Fetch Projects table from Supabase
     const { data: project, error: projectError } = await supabase
     .from("projects")
     .select("id")
-    .eq("hubspot_service_id", projectId)
+    .eq("hubspot_service_id", hubspot_service_id)
     .single()
 
     if (!project || projectError) {

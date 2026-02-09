@@ -11,7 +11,7 @@ const ALLOWED_TYPES = ["update", "action", "milestone", "message"];
 export async function POST(request: Request) {
   try {
     const secret = request?.headers?.get("x-portal-secret");
-    if (secret !== process.env.HUBSPOT_PORTAL_SECRET) {
+    if (secret !== process.env.HUBSPOT_PRIVATE_SECRET) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
     .from("projects")
     .select("id")
     .eq("hubspot_service_id", projectId)
-    .single(),
+    .single()
 
     if (!project || projectError) {
         return NextResponse.json({ error: "Could not find project"  }, { status: 404 })
@@ -63,18 +63,4 @@ export async function POST(request: Request) {
       { status: 400 }
     );
   }
-
-
-
-
-
-
-
-// HubSpot must send:
-//{
-//  title: string (<=128),
-//  body: string (<=512),
-//  projectId: string (HubSpot service ID),
-//  occurred_at: ISO string,
-//  type: 'update' | 'action' | 'milestone' | 'message'
-//}
+}
